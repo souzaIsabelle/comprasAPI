@@ -1,11 +1,9 @@
-// src/routes/AppRoutes.tsx
-
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { Feather } from "@expo/vector-icons";
 import ProductList from "../screens/ProductList";
 import ProductDetails from "../screens/ProductDetails";
-import CartScreen from "../screens/Cart";
-import PaymentScreen from "../screens/Payment";
+import Cart from "../screens/Cart";
+import Payment from "../screens/Payment";
 import OrderStatus from "../screens/OrderStatus";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import UserDetails from "../screens/UserDetails";
@@ -47,14 +45,14 @@ const CartRoutes = () => {
     <CartStack.Navigator>
       <CartStack.Screen
         name="Cart"
-        component={CartScreen}
+        component={Cart}
         options={{
           title: "Meu Carrinho",
         }}
       />
       <CartStack.Screen
         name="Payment"
-        component={PaymentScreen}
+        component={Payment}
         options={{
           title: "Pagamento",
         }}
@@ -110,5 +108,3 @@ export const AppRoutes = () => {
     </Tab.Navigator>
   );
 };
-
-export default AppRoutes;

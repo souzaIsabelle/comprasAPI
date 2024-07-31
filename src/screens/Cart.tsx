@@ -1,73 +1,87 @@
-import React, { useContext, useEffect, useState } from "react";
-import { StyleSheet, Text, View, Image, ActivityIndicator, Button } from "react-native";
-import { RouteProp, useNavigation, useRoute } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import axios from "axios";
-import { CartContext } from "../contexts/CartContext";
+import React, { useContext } from 'react';
+import { View, Text, StyleSheet, FlatList, Button } from 'react-native';
+import { CartContext } from '../contexts/CartContext'; // ajuste o caminho conforme necessário
 
+const Cart = () => {
+  const cartContext = useContext(CartContext);
 
-const ProductDetails = () => {
-
-  const {getCart, cart} = useContext(CartContext)
-
-
-  useEffect(() => {
-getCart();
-  }, []);
-
-
-  if (!cart) {
-    return (
-      <View style={styles.container}>
-        <Text>Product not found</Text>
-      </View>
-    );
-  }
-
-  // Transformar em flatlist e renderizar cart
   return (
     <View style={styles.container}>
-      <Image source={{ uri: product.image }} style={styles.image} />
-      <Text style={styles.title}>{product.title}</Text>
-      <Text style={styles.price}>${product.price}</Text>
-      <Text style={styles.description}>{product.description}</Text>
-      <Button
-        title="Add to Cart"
-        onPress={() => {/* Implementar a lógica para adicionar ao carrinho aqui */}}
-        color="#444"
+      <Text style={styles.title}>Cart</Text>
+      <FlatList
+        data={cartContext?.cart}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => (
+          <View style={styles.item}>
+            <Text style={styles.itemTitle}>{item.title}</Text>
+            <Text style={styles.itemPrice}>${item.price}</Text>
+            <Text style={styles.itemQuantity}>Quantity: {item.quantity}</Text>
+            <Button
+              title="Remove from Cart"
+              onPress={() => cartContext?.removeFromCart(item.id)}
+              color="#ff0000"
+            />
+          </View>
+        )}
       />
+      <View style={styles.totalContainer}>
+        <Text style={styles.totalText}>Total: ${cartContext?.total.toFixed(2)}</Text>
+      </View>
     </View>
   );
 };
 
-export default ProductDetails;
+export default Cart;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#2c2c2c",  // Tela de fundo meio escura
-  },
-  image: {
-    width: "100%",
-    height: 300,
-    resizeMode: "contain",
-    marginBottom: 16,
+    backgroundColor: "#f5f5f5",
   },
   title: {
-    fontSize: 24,
+    fontSize: 18,
     fontWeight: "bold",
-    color: "#fff",  // Texto branco para melhor contraste com o fundo escuro
-    marginBottom: 8,
-  },
-  price: {
-    fontSize: 20,
-    color: "#ccc",  // Texto de preço com cor clara para contraste
-    marginBottom: 8,
-  },
-  description: {
-    fontSize: 16,
-    color: "#aaa",  // Texto de descrição com cor clara para contraste
     marginBottom: 16,
+  },
+  item: {
+    backgroundColor: "#fff",
+    padding: 16,
+    marginBottom: 16,
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  itemTitle: {
+    fontSize: 16,
+    fontWeight: "bold",
+  },
+  itemPrice: {
+    fontSize: 14,
+    color: "#888",
+    marginVertical: 8,
+  },
+  itemQuantity: {
+    fontSize: 14,
+    color: "#888",
+    marginBottom: 8,
+  },
+  totalContainer: {
+    marginTop: 16,
+    padding: 16,
+    backgroundColor: "#fff",
+    borderRadius: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  totalText: {
+    fontSize: 18,
+    fontWeight: "bold",
   },
 });

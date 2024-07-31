@@ -1,16 +1,14 @@
-import React from 'react';
-import { CartProvider } from './src/contexts/CartContext'; 
-import Routes from './src/routes';
-import { UserProvider } from './src/contexts/UserContext';
+import { RootSiblingParent } from "react-native-root-siblings";
+import Routes from "./src/routes";
+import React from "react";
+import { UserProvider } from "./src/contexts/UserContext";
 
-const App = () => {
+export default function App() {
   return (
-    <UserProvider>
-    <CartProvider>
-      <Routes />
-    </CartProvider>
-    </UserProvider>
+    <RootSiblingParent>
+      <UserProvider>
+        <Routes />
+      </UserProvider>
+    </RootSiblingParent>
   );
-};
-
-export default App;
+}

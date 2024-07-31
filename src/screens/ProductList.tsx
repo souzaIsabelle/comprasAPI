@@ -1,15 +1,22 @@
+// src/screens/ProductList.tsx
 import React, { useEffect, useState, useContext } from "react";
-import { StyleSheet, Text, View, FlatList, ActivityIndicator, Button, TouchableOpacity } from "react-native";
+import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 import axios from "axios";
-import { CartContext } from "../contexts/CartContext";  // ajuste o caminho conforme necessário
-import { ProductDTO } from "../types/Product";
-import { useNavigation } from "@react-navigation/native";
+import { CartContext } from "../contexts/CartContext"; // ajuste o caminho conforme necessário
+
+interface Product {
+  id: number;
+  title: string;
+  price: number;
+  description: string;
+  category: string;
+  image: string;
+}
 
 const ProductList = () => {
-  const [products, setProducts] = useState<ProductDTO[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const cartContext = useContext(CartContext);
-  const navigation = useNavigation<any>()
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -34,17 +41,21 @@ const ProductList = () => {
     );
   }
 
-  const renderItem = (item: ProductDTO ) => (
+  const handleAddToCart = (item: Product) => {
+    if (cartContext) {
+      cartContext.addToCart(item);
+    }
+  };
+
+  const renderItem = ({ item }: { item: Product }) => (
     <View style={styles.card}>
-      <TouchableOpacity onPress={() => navigation.navigate('Details', item)}>
+      <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.price}>${item.price}</Text>
       <Text style={styles.description}>{item.description}</Text>
+      <TouchableOpacity style={styles.button} onPress={() => handleAddToCart(item)}>
+        <Text style={styles.buttonText}>Adicionar no Carrinho</Text>
       </TouchableOpacity>
-      <Button
-        title="Add to Cart"
-        onPress={() => cartContext?.addToCart(item)}
-      />
     </View>
   );
 
@@ -53,55 +64,63 @@ const ProductList = () => {
       <FlatList
         data={products}
         keyExtractor={(item) => item.id.toString()}
-        renderItem={({item}) => renderItem(item)}
+        renderItem={renderItem}
       />
     </View>
   );
 };
 
-export default ProductList;
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: "#2c2c2c",  // Tela de fundo meio escura
+    backgroundColor: "#f5f5f5",
   },
   card: {
-    backgroundColor: "#3c3c3c",  // Itens da lista com fundo um pouco mais claro que o fundo
+    backgroundColor: "#fff",
     padding: 16,
     marginBottom: 16,
-    borderRadius: 16,  // Botões mais arredondados
+    borderRadius: 8,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
+    alignItems: "center",
+  },
+  image: {
+    width: 100,
+    height: 100,
+    resizeMode: "contain",
+    marginBottom: 16,
   },
   title: {
     fontSize: 18,
     fontWeight: "bold",
-    color: "#fff"  // Texto branco para melhor contraste com o fundo escuro
+    textAlign: "center",
   },
   price: {
     fontSize: 16,
-    color: "#ccc",  // Texto de preço com cor clara para contraste
+    color: "#888",
     marginVertical: 8,
   },
   description: {
     fontSize: 14,
-    color: "#aaa",  // Texto de descrição com cor clara para contraste
+    color: "#444",
+    textAlign: "center",
   },
-  itemButton: {
-    backgroundColor: "#444",  // Botão com fundo escuro
-    padding: 10,
-    borderRadius: 16,  // Botões mais arredondados
-    alignItems: "center",
+  button: {
+    backgroundColor: "#3498db",
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
     marginTop: 10,
   },
-  itemButtonText: {
-    color: "#fff",  // Texto do botão com cor clara
+  buttonText: {
+    color: "#fff",
+    fontSize: 16,
     fontWeight: "bold",
   },
 });
 
+export default ProductList;
