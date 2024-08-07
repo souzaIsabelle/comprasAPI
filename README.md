@@ -1,3 +1,1 @@
-# APP CARRINHO DE COMPRAS
-
-Repositório de exemplo contendo a estrutura inicial para o trabalho da disciplina de React Native do curso TDS - Senac São Leopoldo
+Como parte da conclusão do módulo no curso de Desenvolvimento de Sistemas do Senac RS, desenvolvi um aplicativo simples em React Native utilizando TypeScript. Este projeto simula um carrinho de compras, permitindo ao usuário navegar entre diferentes telas, adicionar itens ao carrinho, e proceder com o pagamento. É uma demonstração prática das habilidades adquiridas durante o curso, incluindo navegação, gerenciamento de estados e integração com APIs.
