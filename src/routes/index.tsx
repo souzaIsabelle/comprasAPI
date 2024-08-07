@@ -10,7 +10,7 @@ const Routes = () => {
   useEffect(() => {
     getToken();
     getUserData();
-  });
+  }, []);
 
   return (
     <NavigationContainer>
@@ -20,3 +20,4 @@ const Routes = () => {
 };
 
 export default Routes;
+

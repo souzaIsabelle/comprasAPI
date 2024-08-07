@@ -1,67 +1,83 @@
-import React, { createContext, useState, ReactNode } from 'react';
+import { ReactNode, createContext, useContext, useState } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { ICartItem, ProductDTO } from "../types/Product";
+import { showError } from "../components/Toast";
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
-}
+type CartContextProps = {
+  cart: ICartItem[];
+  getCart: () => void;
+  addProduct: (product: ProductDTO) => void;
+  removeProduct: (id: number) => void; // Ou remover enviando o produto todo e desestruturar na função
+};
 
-interface CartItem extends Product {
-  quantity: number;
-}
+type CartProviderProps = {
+  children: ReactNode;
+};
 
-interface CartContextType {
-  cart: CartItem[];
-  total: number;
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-}
+export const CartContext = createContext<CartContextProps>(
+  {} as CartContextProps
+);
 
-export const CartContext = createContext<CartContextType | undefined>(undefined);
+export const useCartContext = () => useContext(CartContext);
 
-export const CartProvider = ({ children }: { children: ReactNode }) => {
-  const [cart, setCart] = useState<CartItem[]>([]);
-  const [total, setTotal] = useState(0);
+export const CartProvider = ({ children }: CartProviderProps) => {
+  const [cart, setCart] = useState<ICartItem[]>([]);
 
-  const addToCart = (product: Product) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find(item => item.id === product.id);
-      if (existingItem) {
-        return prevCart.map(item =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
-        );
-      } else {
-        return [...prevCart, { ...product, quantity: 1 }];
-      }
-    });
-    setTotal(prevTotal => prevTotal + product.price);
-  };
-
-  const removeFromCart = (productId: number) => {
-    setCart((prevCart) => {
-      const existingItem = prevCart.find(item => item.id === productId);
-      if (existingItem) {
-        if (existingItem.quantity > 1) {
-          return prevCart.map(item =>
-            item.id === productId ? { ...item, quantity: item.quantity - 1 } : item
-          );
-        } else {
-          return prevCart.filter(item => item.id !== productId);
-        }
-      }
-      return prevCart;
-    });
-    const product = cart.find(item => item.id === productId);
-    if (product) {
-      setTotal(prevTotal => prevTotal - product.price);
+  const storeCart = async (value: ICartItem[]) => {
+    try {
+      const jsonValue = JSON.stringify(value);
+      await AsyncStorage.setItem("@cart", jsonValue);
+    } catch (error) {
+      showError("Não foi possível salvar o carrinho");
     }
   };
 
+  const getCart = async () => {
+    try {
+      const jsonValue = await AsyncStorage.getItem("@cart");
+      const cartData = jsonValue !== null ? JSON.parse(jsonValue) : null;
+      setCart(cartData);
+    } catch (error) {
+      showError("Não foi possível recuperar o carrinho");
+    }
+  };
+
+  const addProduct = (value: ProductDTO) => {
+    const existingProduct = cart.find(({ product }) => value.id === product.id);
+
+    if (existingProduct) {
+      const newCart = cart.map((item) =>
+        item.product.id === existingProduct.product.id
+          ? { ...item, quantity: item.quantity ? item.quantity + 1 : 1 }
+          : item
+      );
+
+      setCart(newCart);
+      storeCart(newCart);
+    } else {
+      const newCart = [...cart];
+      const data: ICartItem = { product: value, quantity: 1 };
+      newCart.push(data);
+      setCart(newCart);
+      storeCart(newCart);
+    }
+  };
+
+  const removeProduct = (id: number) => {
+    /*
+     Pega o array que contém os produtos que estão no carrinho
+     Deixa passar somente os itens que atendem a condição
+     Atribui à variável os item que passaram na condição
+    */
+    const newCart = cart.filter((c) => c.product.id !== id);
+    // Salva no state (memória provisória enquanto o app está executando)
+    setCart(newCart);
+    // Salva na memória permanente do aparelho
+    storeCart(newCart);
+  };
+
   return (
-    <CartContext.Provider value={{ cart, total, addToCart, removeFromCart }}>
+    <CartContext.Provider value={{ cart, getCart, addProduct, removeProduct }}>
       {children}
     </CartContext.Provider>
   );

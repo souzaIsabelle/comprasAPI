@@ -3,18 +3,11 @@ import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet, Text, View, FlatList, ActivityIndicator, TouchableOpacity, Image } from "react-native";
 import axios from "axios";
 import { CartContext } from "../contexts/CartContext"; // ajuste o caminho conforme necessário
+import { ProductDTO } from "../types/Product";
 
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  description: string;
-  category: string;
-  image: string;
-}
 
 const ProductList = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const [products, setProducts] = useState<ProductDTO[]>([]);
   const [loading, setLoading] = useState(true);
   const cartContext = useContext(CartContext);
 
@@ -41,13 +34,13 @@ const ProductList = () => {
     );
   }
 
-  const handleAddToCart = (item: Product) => {
+  const handleAddToCart = (item: ProductDTO) => {
     if (cartContext) {
-      cartContext.addToCart(item);
+      cartContext.addProduct(item);
     }
   };
 
-  const renderItem = ({ item }: { item: Product }) => (
+  const renderItem = ({ item }: { item: ProductDTO }) => (
     <View style={styles.card}>
       <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
